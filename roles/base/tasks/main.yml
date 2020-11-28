@@ -1,0 +1,146 @@
+---
+- name: enable Multilib support
+  blockinfile:
+    path: /etc/pacman.conf
+    insertafter: "^#[multilib]"
+    block: |
+      [multilib]
+      Include = /etc/pacman.d/mirrorlist
+  become: yes
+- name: update database
+  package:
+    update_cache: yes
+    upgrade: yes
+  become: yes
+- name: install basics
+  package:
+    name:
+      - git
+      - vim
+      - stow
+      - man-db
+      - ntp
+  become: yes
+- name: handling NTP
+  block:
+    - name: disable NTP
+      systemd:
+        name: ntpd
+        state: stopped
+      become: yes
+    #start NTP client now with panicgate to ensure synchronization
+    - name: start ntp now
+      command:
+        cmd: ntpd -gq
+      become: yes
+    - name: enable ntp
+      systemd:
+        name: ntpd
+        enabled: yes
+        state: started
+      become: yes
+- name: clone dotfile repo 
+  git:
+    repo: https://github.com/bittnert/dotfiles
+    dest: ~/dotfiles
+- name: install yay required
+  package:
+    name: 
+      - base-devel
+      - go
+  become: yes
+- name: install yay
+  aur:
+    name: yay
+- name: install fonts
+  package: 
+    name:
+      - ttf-bitstream-vera
+      - ttf-croscore
+      - ttf-dejavu
+      - ttf-droid
+      - gnu-free-fonts
+      - ttf-ibm-plex
+      - ttf-liberation
+      - ttf-linux-libertine
+      - noto-fonts-emoji
+      - font-bh-ttf
+      - ttf-roboto
+      - tex-gyre-fonts
+      - ttf-ubuntu-font-family
+      - ttf-cascadia-code
+      - ttf-fira-code
+      - ttf-jetbrains-mono
+  become: yes
+- name: install zsh
+  block:
+    - name: install zsh
+      package:
+        name: zsh
+      become: yes
+    - name: install powerlevel10k
+      aur:
+        name: 
+          - ttf-meslo-nerd-font-powerlevel10k
+          - zsh-theme-powerlevel10k-git
+    - name: configuring default shell
+      command:
+        cmd: chsh -s /bin/zsh thomas
+      become: yes
+    - name: installing zsh config files
+      command:
+        cmd: stow zsh
+        chdir: ~/dotfiles
+    - name: install base config files
+      command:
+        cmd: stow base
+        chdir: ~/dotfiles
+ 
+#- name: install cups config files
+#  command:
+#    cmd: ln -s /home/thomas/dotfiles/printer/cups /etc/cups 
+#    chdir: /home/thomas/dotfiles/printer
+#  become: yes
+#- name: install hplip config
+#  command:
+#    cmd: ln -s ~/dotfiles/printer/.hplib ~/.hplib 
+#    chdir: ~/dotfiles/printer
+# These packages are always needed, independent what desktop is used
+- name: install important programs
+  package:
+    name: 
+      - chromium
+      - vim
+      - stow
+      - pulseaudio
+      - pulseaudio-alsa
+      - pamixer
+      - hplip
+      - cups
+  become: yes
+
+- name: install hplip config files
+  file:
+    path: ~/.hplip
+    src: ~/dotfiles/printer/.hplip
+    state: link
+- name: removing default cups config
+  file:
+    path: /etc/cups
+    state: absent
+  become: yes
+- name: install cups config files
+  file:
+    path: /etc/cups
+    src: /home/thomas/dotfiles/printer/cups
+    state: link
+  become: yes
+- name: enable and start cups
+  systemd:
+    name: cups
+    state: started
+    enabled: yes
+  become: yes
+
+
+...

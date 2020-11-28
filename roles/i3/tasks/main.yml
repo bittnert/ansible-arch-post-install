@@ -1,0 +1,60 @@
+---
+- name: install i3
+  block:
+    - name: install i3
+      package:
+        name: 
+          - i3-gaps
+          - i3lock
+          - i3blocks
+          - xorg-server
+          - xorg-xinit
+          - xorg-xrandr
+          - rofi
+          - feh
+          - ttf-font-awesome 
+          - lightdm
+          - lightdm-webkit2-greeter
+          - lightdm-webkit-theme-litarvan
+          - ranger
+          - python-pip
+          - alsa-utils
+          - scrot       #needed for i3-lock fancy
+          - imagemagick #needed for i3-lock fancy
+          - xautolock
+          - lm_sensors
+          - pix
+      become: yes
+    - name: install aur packages
+      aur:
+        name: 
+          - xkb-switch
+          - rxvt-unicode-pixbuf
+    - name: configure lightdm theme
+      lineinfile:
+        regexp: "^webkit_theme"
+        path: /etc/lightdm/lightdm-webkit2-greeter.conf
+        line: "webkit_theme = litarvan"
+      become: yes
+    - name: configure lightdm greeter
+      lineinfile:
+        regexp: "^#greeter-session="
+        path: /etc/lightdm/lightdm.conf
+        line: "greeter-session=lightdm-webkit2-greeter"
+      become: yes
+    - name: installing i3 config files
+      block:
+        - name: create config folder
+          file:
+            dest: ~/.config
+            state: directory
+        - name: installing i3 config files
+          command:
+            cmd: stow -t ~/.config .config
+            chdir: ~/dotfiles/i3
+          notify: activate lightdm 
+    - name: install i3-lock fancy
+      git:
+        repo: https://github.com/guimeira/i3lock-fancy-multimonitor.git
+        dest: ~/.i3/i3lock-fancy-multimonitor 
+...

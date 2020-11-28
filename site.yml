@@ -1,0 +1,28 @@
+---
+- hosts: all
+  roles:
+  - kewlfft.aur
+  - base
+  - i3
+  tasks:
+    - name: install micro code (intel)
+      pacman:
+        name: intel-ucode
+        update_cache: yes
+      become: yes
+      when: "'GenuineIntel' in ansible_processor"
+      notify: re-create grub config
+  handlers:
+    - name: activate SLIM
+      systemd:
+        name: slim 
+        enabled: yes
+      become: yes
+    - name: re-create grub config
+      command: grub-mkconfig -o /boot/grub/grub.cfg
+      become: yes
+    - name: activate lightdm
+      systemd:
+        name: lightdm
+        enabled: yes
+      become: yes

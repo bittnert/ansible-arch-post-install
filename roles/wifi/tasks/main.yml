@@ -1,0 +1,11 @@
+---
+- name: install wifi packages
+  packages:
+    name:
+      - wireless_tools
+      - 
+  become: yes
+
+  
+
+...

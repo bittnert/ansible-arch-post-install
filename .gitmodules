@@ -1,0 +1,3 @@
+[submodule "roles/ansible_role_gpu_driver"]
+	path = roles/ansible_role_gpu_driver
+	url = https://github.com/ekultails/ansible_role_gpu_driver.git
