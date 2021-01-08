@@ -23,11 +23,11 @@
           - imagemagick #needed for i3-lock fancy
           - xautolock
           - lm_sensors
-          - pix
       become: yes
     - name: install aur packages
       aur:
         name: 
+          - pix
           - xkb-switch
           - rxvt-unicode-pixbuf
     - name: configure lightdm theme

@@ -1,0 +1,7 @@
+---
+ansible_user: thomas
+ansible_ssh_common_args: -o "StrictHostKeyChecking no" -o "UserKnownHostsFile /dev/null"
+install_drive: /dev/sda
+wired_interface: enp0s3
+boot_partition_suffix: '1'
+root_partition_suffix: '2'

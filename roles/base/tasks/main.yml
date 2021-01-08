@@ -43,6 +43,7 @@
   git:
     repo: https://github.com/bittnert/dotfiles
     dest: ~/dotfiles
+    force: yes
 - name: install yay required
   package:
     name: 

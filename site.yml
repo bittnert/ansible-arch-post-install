@@ -12,6 +12,13 @@
       become: yes
       when: "'GenuineIntel' in ansible_processor"
       notify: re-create grub config
+    - name: install micro code (AMD)
+      pacman:
+        name: amd-ucode
+        update_cache: yes
+      become: yes
+      when: "'AuthenticAMD' in ansible_processor"
+      notify: re-create grub config
   handlers:
     - name: activate SLIM
       systemd:
